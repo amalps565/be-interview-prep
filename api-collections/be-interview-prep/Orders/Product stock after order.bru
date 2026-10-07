@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{productBId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{productBId}}
 }
 
 tests {
@@ -18,4 +22,13 @@ tests {
   test("shows stock reduced by the placed order only", function () {
     expect(res.body.stock).to.equal(4);
   });
+}
+
+docs {
+  Reads product B after the orders.
+
+  **Inputs to try:** set the `id` path parameter to `{{productAId}}` to see A at 0.
+
+  **Expect:** 200 with stock 4: 5 minus the 1 from **Place order**. The failed order in
+  **Insufficient stock** took nothing.
 }

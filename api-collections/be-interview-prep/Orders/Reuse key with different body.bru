@@ -32,3 +32,9 @@ tests {
     expect(res.body.path).to.equal("/api/orders");
   });
 }
+
+docs {
+  Reuses the key from **Place order** for a different order.
+
+  **Expect:** 422, because one key may only ever mean one order.
+}

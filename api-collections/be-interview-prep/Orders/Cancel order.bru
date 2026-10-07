@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/orders/{{orderId}}/cancel
+  url: {{baseUrl}}/api/orders/:id/cancel
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{orderId}}
 }
 
 tests {
@@ -19,4 +23,12 @@ tests {
     expect(res.body.id).to.equal(bru.getVar("orderId"));
     expect(res.body.status).to.equal("CANCELLED");
   });
+}
+
+docs {
+  Cancels your order and returns its items to stock.
+
+  **Inputs to try:** the `id` path parameter.
+
+  **Expect:** 200 with status `CANCELLED`.
 }

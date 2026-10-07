@@ -29,3 +29,9 @@ tests {
     expect(res.body.status).to.equal(403);
   });
 }
+
+docs {
+  Tries to add a product with the normal user's token.
+
+  **Expect:** 403, because only an `ADMIN` can add, change or remove products.
+}

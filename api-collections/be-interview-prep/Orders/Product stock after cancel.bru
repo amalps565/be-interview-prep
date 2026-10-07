@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{productAId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{productAId}}
 }
 
 tests {
@@ -18,4 +22,10 @@ tests {
   test("shows the cancelled items back in stock", function () {
     expect(res.body.stock).to.equal(2);
   });
+}
+
+docs {
+  Reads product A after the cancel.
+
+  **Expect:** 200 with stock back at 2.
 }

@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{newProductId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{newProductId}}
 }
 
 tests {
@@ -19,4 +23,10 @@ tests {
     expect(res.body.status).to.equal(404);
     expect(res.body.path).to.equal("/api/products/" + bru.getVar("newProductId"));
   });
+}
+
+docs {
+  Reads the deleted product.
+
+  **Expect:** 404, which shows the delete also removed it from the cache.
 }

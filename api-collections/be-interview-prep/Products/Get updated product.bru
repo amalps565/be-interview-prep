@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{newProductId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{newProductId}}
 }
 
 tests {
@@ -19,4 +23,11 @@ tests {
     expect(res.body.price).to.equal(59.5);
     expect(res.body.stock).to.equal(7);
   });
+}
+
+docs {
+  Reads the product again after the update.
+
+  **Expect:** 200 with the new price 59.5 and stock 7, which shows the cache was refreshed rather
+  than serving the old price.
 }

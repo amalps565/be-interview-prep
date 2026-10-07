@@ -24,3 +24,11 @@ tests {
     expect(res.body.content.length).to.be.at.most(100);
   });
 }
+
+docs {
+  Asks for more products than one page may hold.
+
+  **Inputs to try:** the `size` query parameter.
+
+  **Expect:** 200 with `size` 100. A larger size is clamped, not rejected.
+}

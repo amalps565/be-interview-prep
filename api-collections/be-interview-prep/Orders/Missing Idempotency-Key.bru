@@ -28,3 +28,9 @@ tests {
     expect(res.body.path).to.equal("/api/orders");
   });
 }
+
+docs {
+  Places an order with no `Idempotency-Key` header.
+
+  **Expect:** 400 in the shared JSON error format. Every order needs a key of 1 to 100 characters.
+}

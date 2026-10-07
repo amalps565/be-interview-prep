@@ -37,3 +37,14 @@ tests {
     expect(res.body.message).to.include(String(bru.getVar("productAId")));
   });
 }
+
+docs {
+  Orders one B and one A after **Place order** took all of A.
+
+  **Idempotency-Key:** the Headers tab sends `{{shortStockKey}}`, a new value per send set by the
+  pre-request script. You can replace it with any fixed string such as `order-002`.
+
+  **Inputs to try:** raise a `quantity` above the product's stock.
+
+  **Expect:** 409 with a message naming product A. Nothing is reserved, so B keeps its stock.
+}

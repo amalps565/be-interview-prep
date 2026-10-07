@@ -37,3 +37,9 @@ tests {
     expect(res.body.stock).to.equal(5);
   });
 }
+
+docs {
+  Adds product B (price 2.50, stock 5) with the admin token and stores its id in `productBId`.
+
+  **Expect:** 201 with the product.
+}

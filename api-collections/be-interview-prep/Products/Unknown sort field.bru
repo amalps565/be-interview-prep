@@ -24,3 +24,11 @@ tests {
     expect(fields).to.include("sort");
   });
 }
+
+docs {
+  Sorts on a field products do not have.
+
+  **Inputs to try:** the `sort` query parameter; a real field such as `rating,desc` returns 200.
+
+  **Expect:** 400 with a `fieldErrors` entry for `sort` listing the allowed fields.
+}
