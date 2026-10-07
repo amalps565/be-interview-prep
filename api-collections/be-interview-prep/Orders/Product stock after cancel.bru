@@ -1,0 +1,21 @@
+meta {
+  name: Product stock after cancel
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{productAId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("shows the cancelled items back in stock", function () {
+    expect(res.body.stock).to.equal(2);
+  });
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Product stock after order
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{productBId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("shows stock reduced by the placed order only", function () {
+    expect(res.body.stock).to.equal(4);
+  });
+}

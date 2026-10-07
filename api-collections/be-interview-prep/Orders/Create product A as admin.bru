@@ -1,0 +1,39 @@
+meta {
+  name: Create product A as admin
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/products
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bruno Order Kettle",
+    "category": "Home",
+    "price": 10.00,
+    "stock": 2,
+    "rating": 4.0
+  }
+}
+
+script:post-response {
+  bru.setVar("productAId", res.body.id);
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("starts with 2 in stock", function () {
+    expect(res.body.stock).to.equal(2);
+  });
+}

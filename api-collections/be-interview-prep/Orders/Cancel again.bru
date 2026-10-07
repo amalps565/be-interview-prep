@@ -1,0 +1,21 @@
+meta {
+  name: Cancel again
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/orders/{{orderId}}/cancel
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 409 Conflict", function () {
+    expect(res.status).to.equal(409);
+  });
+
+  test("says the order is already cancelled", function () {
+    expect(res.body.message).to.include("already cancelled");
+  });
+}

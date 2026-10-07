@@ -36,6 +36,7 @@ The requests share variables, so run them in this order (the runner does this by
 | Tasks | Create task, List tasks, Filter by status, Get task, Update task, Delete task, Get deleted task (404), Create invalid task (400) | `taskId` |
 | URL Shortener | Shorten URL, Shorten same URL again (200, same code), Shorten with custom code, Follow short link (302), Stats, Unknown code (404), Invalid URL (400) | `longUrl`, `code`, `customCode` |
 | Products | List products, List with combined filters, Page size capped (500 becomes 100), Unknown sort field (400), Get product, Get product again, Create product as USER (403), Create product as admin, Get new product, Update product as admin, Get updated product, Delete product as admin, Get deleted product (404) | `firstProductId`, `productId`, `newProductId` |
+| Orders | Create product A as admin (stock 2), Create product B as admin (stock 5), Place order, Retry same order (200, `Idempotent-Replayed: true`), Reuse key with different body (422), Insufficient stock (409), Product stock after order, Get order, Cancel order, Product stock after cancel, Cancel again (409), Missing Idempotency-Key (400) | `productAId`, `productBId`, `idempotencyKey`, `orderId`, `shortStockKey` |
 
 - **Register user** makes a fresh email and a random password for every run, so the collection can
   be run again against the same app without a 409.
@@ -44,6 +45,10 @@ The requests share variables, so run them in this order (the runner does this by
   that with `{{adminToken}}`, so Auth must run before the other folders.
 - **Get new product** reads the new product once so it is cached; **Get updated product** then
   proves the cache returns the new price, not the old one.
+- **Orders** creates its own two products so stock numbers are known. **Place order** makes a new
+  UUID `Idempotency-Key` every run and buys all of product A and one of B. **Insufficient stock**
+  asks for one more A alongside one B, gets 409, and **Product stock after order** shows B at 4,
+  so the failed order reserved nothing. Cancelling returns A to 2.
 - The register and login request bodies are built in their pre-request scripts so no password is
   written in a `.bru` file.
 - **Follow short link** and **Unknown code** turn off redirect following for that request, so the

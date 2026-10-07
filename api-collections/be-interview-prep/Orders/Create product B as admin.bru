@@ -1,0 +1,39 @@
+meta {
+  name: Create product B as admin
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/products
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bruno Order Bottle",
+    "category": "Home",
+    "price": 2.50,
+    "stock": 5,
+    "rating": 4.0
+  }
+}
+
+script:post-response {
+  bru.setVar("productBId", res.body.id);
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("starts with 5 in stock", function () {
+    expect(res.body.stock).to.equal(5);
+  });
+}

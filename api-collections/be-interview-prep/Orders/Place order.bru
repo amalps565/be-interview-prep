@@ -1,0 +1,50 @@
+meta {
+  name: Place order
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": {{productAId}}, "quantity": 2 },
+      { "productId": {{productBId}}, "quantity": 1 }
+    ]
+  }
+}
+
+script:pre-request {
+  const uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = Math.floor(Math.random() * 16);
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+  bru.setVar("idempotencyKey", uuid);
+}
+
+script:post-response {
+  bru.setVar("orderId", res.body.id);
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns the placed order with its Location and total", function () {
+    expect(res.body.id).to.be.a("number");
+    expect(res.headers["location"]).to.equal("/api/orders/" + res.body.id);
+    expect(res.body.status).to.equal("PLACED");
+    expect(res.body.total).to.equal(22.5);
+    expect(res.body.items.length).to.equal(2);
+  });
+}
