@@ -1,0 +1,22 @@
+meta {
+  name: Get product again
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{productId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the same product from the cache", function () {
+    expect(res.body.id).to.equal(bru.getVar("productId"));
+    expect(res.body.name).to.equal(bru.getVar("productName"));
+  });
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Create product as USER
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/products
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Bruno Test Lamp",
+    "category": "Home",
+    "price": 49.99,
+    "stock": 5,
+    "rating": 4.5
+  }
+}
+
+tests {
+  test("returns 403 Forbidden for a USER", function () {
+    expect(res.status).to.equal(403);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(403);
+  });
+}

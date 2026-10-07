@@ -1,0 +1,26 @@
+meta {
+  name: Unknown sort field
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/products?sort=colour,asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  sort: colour,asc
+}
+
+tests {
+  test("returns 400 Bad Request", function () {
+    expect(res.status).to.equal(400);
+  });
+
+  test("names the sort field", function () {
+    const fields = res.body.fieldErrors.map(function (error) { return error.field; });
+    expect(fields).to.include("sort");
+  });
+}

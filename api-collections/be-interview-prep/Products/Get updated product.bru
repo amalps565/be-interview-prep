@@ -1,0 +1,22 @@
+meta {
+  name: Get updated product
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{newProductId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("shows the new price, not a stale cached one", function () {
+    expect(res.body.price).to.equal(59.5);
+    expect(res.body.stock).to.equal(7);
+  });
+}

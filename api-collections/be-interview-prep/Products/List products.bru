@@ -1,0 +1,42 @@
+meta {
+  name: List products
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/products?page=0&size=10&sort=price,asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 0
+  size: 10
+  sort: price,asc
+}
+
+script:post-response {
+  bru.setVar("firstProductId", res.body.content[0].id);
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the first page of at least 100 seeded products", function () {
+    expect(res.body.totalElements).to.be.at.least(100);
+    expect(res.body.page).to.equal(0);
+    expect(res.body.size).to.equal(10);
+    expect(res.body.size).to.be.at.most(100);
+    expect(res.body.content.length).to.equal(10);
+  });
+
+  test("sorts by price, lowest first", function () {
+    const prices = res.body.content.map(function (product) { return product.price; });
+    for (let i = 1; i < prices.length; i++) {
+      expect(prices[i]).to.be.at.least(prices[i - 1]);
+    }
+  });
+}
