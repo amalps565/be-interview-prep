@@ -5,7 +5,7 @@ Five Spring Boot features built for the backend interview prep assignment. Each 
 ## Stack
 
 - Java 21
-- Spring Boot 3.5 (Web, Validation, Data JPA)
+- Spring Boot 3.5 (Web, Validation, Data JPA), springdoc-openapi for Swagger UI
 - H2 in-memory database
 - Maven (wrapper included), JUnit 5, Spotless with google-java-format
 
@@ -30,6 +30,30 @@ Format the code before committing:
 ```
 
 See [WIKI.md](WIKI.md) for the full assignment brief.
+
+## API
+
+Interactive documentation: `http://localhost:8080/swagger-ui.html`. Every error returns the same JSON shape:
+
+```json
+{"timestamp": "...", "status": 400, "error": "Bad Request", "message": "Validation failed",
+ "path": "/api/tasks", "fieldErrors": [{"field": "title", "message": "is required"}]}
+```
+
+### Tasks (Q1)
+
+| Method | Path | Result |
+|---|---|---|
+| `POST` | `/api/tasks` | 201 with the task; 400 with field errors |
+| `GET` | `/api/tasks?status=TODO` | 200 with the tasks, optionally filtered by status |
+| `GET` | `/api/tasks/{id}` | 200, or 404 for an unknown task |
+| `PUT` | `/api/tasks/{id}` | 200 with the updated task |
+| `DELETE` | `/api/tasks/{id}` | 204 |
+
+```bash
+curl -X POST localhost:8080/api/tasks -H "Content-Type: application/json" \
+  -d '{"title":"Write tests","status":"IN_PROGRESS","dueDate":"2030-01-01"}'
+```
 
 ## Questions
 
