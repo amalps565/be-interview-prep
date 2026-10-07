@@ -19,7 +19,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **URL Shortener: Shortening the same URL twice returns the link that already exists.** When an
   existing link has the same URL and the same expiry, the API returns it with 200 instead of creating
   another, so repeated submissions do not fill the table with duplicates and its visit count stays
-  in one place. A different expiry gets its own link, because its lifetime differs.
+  in one place. A different expiry gets its own link, because its lifetime differs. Each link stores
+  a SHA-256 key of its URL and expiry under a unique constraint, so even simultaneous requests for
+  the same URL end up sharing one link.
   [#3](https://github.com/amalps565/be-interview-prep/issues/3)
 - **URL Shortener: Every visit is counted, even when many people open a link at once.**
   `GET /api/urls/{code}/stats` shows the original URL, the visit count and the created and expiry
@@ -32,7 +34,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   [#3](https://github.com/amalps565/be-interview-prep/issues/3)
 - **URL Shortener: Users can choose their own short code.** An optional `customCode` of 3 to 8
   letters, digits, `-` or `_` is used as the code; one that is taken, or reserved such as `api`,
-  returns 409. [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+  returns 409. When several requests claim the same code at once, the database's unique constraint
+  picks one winner and the rest get 409. [#3](https://github.com/amalps565/be-interview-prep/issues/3)
 
 ## [0.0.2] - 2026-10-07
 
