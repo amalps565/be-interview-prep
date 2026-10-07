@@ -14,7 +14,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   returns 409, a password must be 8 to 72 characters) and `POST /api/auth/login` returns a bearer
   token. A wrong password and an unknown email get the same 401 message, and an unknown email still
   runs a password check, so neither the message nor the response time reveals which accounts exist.
-  Registration ignores any `role` in the body, so nobody can make themselves an admin.
+  Registration ignores any `role` in the body, so nobody can make themselves an admin. A password
+  longer than 72 bytes once UTF-8 encoded, which BCrypt cannot hash, is rejected with 400 instead
+  of failing with 500.
   [#4](https://github.com/amalps565/be-interview-prep/issues/4)
 - **Auth: A login lasts exactly 15 minutes and no server-side session is kept.** The token is an
   HS256-signed JWT carrying the email, user id and role, so web and mobile clients send it on every
@@ -31,6 +33,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   refuses to start when it is missing or shorter than 32 bytes. An admin account is created on
   startup only when `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set. Tests generate a random key and
   admin password on every run. Swagger UI has an Authorize button for the bearer token.
+  [#4](https://github.com/amalps565/be-interview-prep/issues/4)
+- **Auth: Login and registration are rate-limited per client address.** More than 10 requests to
+  `/api/auth/**` from one address within a minute get 429 with a `Retry-After` header and the
+  shared JSON error, which slows password guessing and stops a flood of expensive BCrypt hashing.
+  Both numbers are set by `app.auth.rate-limit.requests` and `app.auth.rate-limit.window`.
   [#4](https://github.com/amalps565/be-interview-prep/issues/4)
 
 ## [0.0.4] - 2026-10-07
