@@ -64,6 +64,11 @@ public class OrderService {
       OrderResponse created =
           transaction.execute(status -> create(customer, key, requestHash, lines));
       return new PlacedOrder(created, false);
+    } catch (InsufficientStockException shortOfStock) {
+      return orders
+          .findByCustomerEmailAndIdempotencyKey(customer, key)
+          .map(original -> replay(original, requestHash))
+          .orElseThrow(() -> shortOfStock);
     } catch (DataIntegrityViolationException concurrentRetry) {
       CustomerOrder winner =
           orders
