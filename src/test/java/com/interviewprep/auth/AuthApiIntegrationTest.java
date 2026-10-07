@@ -181,6 +181,15 @@ class AuthApiIntegrationTest {
   }
 
   @Test
+  void passwordOverSeventyTwoBytesGets400NotA500() throws Exception {
+    String multibyte = "é".repeat(40);
+
+    register(Map.of("email", "accent@example.test", "password", multibyte))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.fieldErrors[0].field").value("password"));
+  }
+
+  @Test
   void registrationCannotGrantAdmin() throws Exception {
     register(Map.of("email", "sneaky@example.test", "password", userPassword, "role", "ADMIN"))
         .andExpect(status().isCreated())

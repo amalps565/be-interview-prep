@@ -5,7 +5,9 @@ import com.interviewprep.auth.dto.RegisterRequest;
 import com.interviewprep.auth.dto.TokenResponse;
 import com.interviewprep.auth.dto.UserResponse;
 import com.interviewprep.common.error.ApiException;
+import com.interviewprep.common.error.InvalidFieldException;
 import com.interviewprep.common.error.ResourceNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
   private static final String INVALID_CREDENTIALS = "Invalid email or password";
+  private static final int BCRYPT_MAX_BYTES = 72;
 
   private final AppUserRepository users;
   private final PasswordEncoder passwordEncoder;
@@ -35,6 +38,9 @@ public class AuthService {
   }
 
   public UserResponse register(RegisterRequest request) {
+    if (request.password().getBytes(StandardCharsets.UTF_8).length > BCRYPT_MAX_BYTES) {
+      throw new InvalidFieldException("password", "must be at most 72 bytes when UTF-8 encoded");
+    }
     String email = normalise(request.email());
     if (users.existsByEmail(email)) {
       throw emailTaken();
