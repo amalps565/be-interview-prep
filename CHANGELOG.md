@@ -18,7 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Task API: Invalid input is rejected with a message for each field.** A missing title, a title
   over 100 characters, a description over 2000 characters or a due date in the past returns 400,
   and `fieldErrors` names every invalid field. An unknown status in the body or in the `status`
-  filter also returns 400 for that field and lists the allowed values.
+  filter also returns 400 for that field and lists the allowed values. An overdue task can still be
+  updated, for example marked `DONE`, as long as its due date is not moved to another past date.
   [#2](https://github.com/amalps565/be-interview-prep/issues/2)
 - **Repo: Every error uses one JSON format.** Validation errors, unknown tasks (404), unsupported
   methods and anything unexpected all return `{timestamp, status, error, message, path,
