@@ -1,0 +1,47 @@
+meta {
+  name: List with combined filters
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/products?category=home&minPrice=100&maxPrice=900&inStock=true&name=a&sort=price,desc&size=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  category: home
+  minPrice: 100
+  maxPrice: 900
+  inStock: true
+  name: a
+  sort: price,desc
+  size: 50
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns at least one match", function () {
+    expect(res.body.content.length).to.be.above(0);
+  });
+
+  test("every product matches every filter", function () {
+    res.body.content.forEach(function (product) {
+      expect(product.category.toLowerCase()).to.equal("home");
+      expect(product.price).to.be.within(100, 900);
+      expect(product.stock).to.be.above(0);
+      expect(product.name.toLowerCase()).to.include("a");
+    });
+  });
+
+  test("sorts by price, highest first", function () {
+    const prices = res.body.content.map(function (product) { return product.price; });
+    for (let i = 1; i < prices.length; i++) {
+      expect(prices[i]).to.be.at.most(prices[i - 1]);
+    }
+  });
+}

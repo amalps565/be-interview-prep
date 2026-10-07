@@ -39,6 +39,8 @@ See [WIKI.md](WIKI.md) for the full assignment brief.
 
 ## API
 
+Ready-made requests for every endpoint, with tests, are in the Bruno collection under [`api-collections/`](api-collections/README.md).
+
 Interactive documentation: `http://localhost:8080/swagger-ui.html`. Every error returns the same JSON shape:
 
 ```json

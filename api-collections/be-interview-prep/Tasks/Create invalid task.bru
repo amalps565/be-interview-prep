@@ -1,0 +1,31 @@
+meta {
+  name: Create invalid task
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/tasks
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "",
+    "dueDate": "2000-01-01"
+  }
+}
+
+tests {
+  test("returns 400 Bad Request", function () {
+    expect(res.status).to.equal(400);
+  });
+
+  test("lists the invalid fields", function () {
+    expect(res.body.message).to.equal("Validation failed");
+    const fields = res.body.fieldErrors.map(function (error) { return error.field; });
+    expect(fields).to.include("title");
+    expect(fields).to.include("dueDate");
+  });
+}

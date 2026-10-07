@@ -1,0 +1,21 @@
+meta {
+  name: List users as USER
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/admin/users
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 403 Forbidden for a USER", function () {
+    expect(res.status).to.equal(403);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(403);
+  });
+}

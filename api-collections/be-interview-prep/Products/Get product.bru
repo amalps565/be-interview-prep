@@ -1,0 +1,27 @@
+meta {
+  name: Get product
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{firstProductId}}
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  bru.setVar("productId", res.body.id);
+  bru.setVar("productName", res.body.name);
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the product from the list", function () {
+    expect(res.body.id).to.equal(bru.getVar("firstProductId"));
+    expect(res.body.name).to.be.a("string").and.not.be.empty;
+  });
+}

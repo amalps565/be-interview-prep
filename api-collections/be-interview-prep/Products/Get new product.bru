@@ -1,0 +1,22 @@
+meta {
+  name: Get new product
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/products/{{newProductId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the original price and puts it in the cache", function () {
+    expect(res.body.id).to.equal(bru.getVar("newProductId"));
+    expect(res.body.price).to.equal(49.99);
+  });
+}
