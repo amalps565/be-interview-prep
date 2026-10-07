@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{productId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{productId}}
 }
 
 tests {
@@ -19,4 +23,13 @@ tests {
     expect(res.body.id).to.equal(bru.getVar("productId"));
     expect(res.body.name).to.equal(bru.getVar("productName"));
   });
+}
+
+docs {
+  Reads the same product a second time. This one is served from the cache without a database
+  query, which usually shows as a shorter response time.
+
+  **Inputs to try:** the `id` path parameter.
+
+  **Expect:** 200 with the same product as **Get product**.
 }

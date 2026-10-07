@@ -48,3 +48,16 @@ tests {
     expect(res.body.items.length).to.equal(2);
   });
 }
+
+docs {
+  Orders 2 of product A and 1 of product B and stores the order id in `orderId`.
+
+  **Idempotency-Key:** the Headers tab sends `{{idempotencyKey}}`, which the pre-request script sets
+  to a new UUID on every send so each send is a new order. To see a retry being recognised, replace
+  the header value with any fixed string such as `order-001`, send once (201), then send again
+  unchanged (200 with `Idempotent-Replayed: true` and the same order).
+
+  **Inputs to try:** the `items` in the body (`productId` and `quantity` 1 to 1000).
+
+  **Expect:** 201 with the order, a `Location` header and `total` 22.5. Product A then has 0 left.
+}

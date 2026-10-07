@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{newProductId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{newProductId}}
 }
 
 tests {
@@ -19,4 +23,10 @@ tests {
     expect(res.body.id).to.equal(bru.getVar("newProductId"));
     expect(res.body.price).to.equal(49.99);
   });
+}
+
+docs {
+  Reads the new product once so it sits in the cache before **Update product as admin**.
+
+  **Expect:** 200 with price 49.99.
 }

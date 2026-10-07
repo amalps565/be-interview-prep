@@ -21,7 +21,13 @@ tests {
 
   test("lists the admin and the registered user", function () {
     const emails = res.body.map(function (user) { return user.email; });
-    expect(emails).to.include(bru.getVar("userEmail"));
+    expect(emails).to.include(bru.getEnvVar("userEmail").toLowerCase());
     expect(res.body.some(function (user) { return user.role === "ADMIN"; })).to.equal(true);
   });
+}
+
+docs {
+  Lists every account, using the admin token from **Login admin** (see the Auth tab).
+
+  **Expect:** 200 with all users, including the admin and the user from **Register user**.
 }

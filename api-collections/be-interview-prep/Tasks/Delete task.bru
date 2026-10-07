@@ -5,13 +5,25 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/api/tasks/{{taskId}}
+  url: {{baseUrl}}/api/tasks/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{taskId}}
 }
 
 tests {
   test("returns 204 No Content", function () {
     expect(res.status).to.equal(204);
   });
+}
+
+docs {
+  Deletes a task.
+
+  **Inputs to try:** the `id` path parameter.
+
+  **Expect:** 204 with no body.
 }

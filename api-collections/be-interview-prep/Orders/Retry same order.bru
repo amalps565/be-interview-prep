@@ -34,3 +34,11 @@ tests {
     expect(res.body.total).to.equal(22.5);
   });
 }
+
+docs {
+  Sends **Place order** again with the same `Idempotency-Key` and body, as a client would after a
+  timeout.
+
+  **Expect:** 200 with the header `Idempotent-Replayed: true` and the same order id. No stock is
+  taken a second time.
+}

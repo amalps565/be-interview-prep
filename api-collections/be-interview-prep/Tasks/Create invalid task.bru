@@ -29,3 +29,12 @@ tests {
     expect(fields).to.include("dueDate");
   });
 }
+
+docs {
+  Sends a blank title and a past due date.
+
+  **Inputs to try:** fix one field at a time and watch it leave `fieldErrors`; a `status` like
+  `"DOING"` adds a status error.
+
+  **Expect:** 400 "Validation failed" with a `fieldErrors` entry for `title` and `dueDate`.
+}

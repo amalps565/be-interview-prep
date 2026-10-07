@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/nope_404
+  url: {{baseUrl}}/:code
   body: none
   auth: none
+}
+
+params:path {
+  code: nope_404
 }
 
 settings {
@@ -23,4 +27,12 @@ tests {
   test("returns the JSON error shape", function () {
     expect(res.body.status).to.equal(404);
   });
+}
+
+docs {
+  Opens a short link that does not exist.
+
+  **Inputs to try:** the `code` path parameter.
+
+  **Expect:** 404 in the shared JSON error format.
 }

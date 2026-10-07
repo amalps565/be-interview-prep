@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.interviewprep</groupId>
 	<artifactId>be-interview-prep</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.9</version>
 	<name>be-interview-prep</name>
 	<description>Backend interview prep assignment: five Spring Boot features</description>
 

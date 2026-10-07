@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/orders/{{orderId}}/cancel
+  url: {{baseUrl}}/api/orders/:id/cancel
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{orderId}}
 }
 
 tests {
@@ -18,4 +22,10 @@ tests {
   test("says the order is already cancelled", function () {
     expect(res.body.message).to.include("already cancelled");
   });
+}
+
+docs {
+  Cancels the same order a second time.
+
+  **Expect:** 409 "Order N is already cancelled". Stock is not returned twice.
 }

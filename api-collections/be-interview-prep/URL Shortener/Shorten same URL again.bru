@@ -12,7 +12,7 @@ post {
 
 body:json {
   {
-    "url": "{{longUrl}}"
+    "url": "{{shortenedUrl}}"
   }
 }
 
@@ -24,4 +24,10 @@ tests {
   test("returns the same code", function () {
     expect(res.body.code).to.equal(bru.getVar("code"));
   });
+}
+
+docs {
+  Sends the URL from **Shorten URL** again (`shortenedUrl`).
+
+  **Expect:** 200 with the same `code`, because a URL with the same expiry is only stored once.
 }

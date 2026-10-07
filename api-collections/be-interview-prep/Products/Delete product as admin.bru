@@ -5,9 +5,13 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/api/products/{{newProductId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: bearer
+}
+
+params:path {
+  id: {{newProductId}}
 }
 
 auth:bearer {
@@ -18,4 +22,12 @@ tests {
   test("returns 204 No Content", function () {
     expect(res.status).to.equal(204);
   });
+}
+
+docs {
+  Removes the new product with the admin token.
+
+  **Inputs to try:** the `id` path parameter. Do not point it at a seeded product you still want.
+
+  **Expect:** 204 with no body.
 }

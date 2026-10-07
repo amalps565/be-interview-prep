@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/products/{{firstProductId}}
+  url: {{baseUrl}}/api/products/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{firstProductId}}
 }
 
 script:post-response {
@@ -24,4 +28,13 @@ tests {
     expect(res.body.id).to.equal(bru.getVar("firstProductId"));
     expect(res.body.name).to.be.a("string").and.not.be.empty;
   });
+}
+
+docs {
+  Reads one product and stores its id in `productId`. The first read fills the cache.
+
+  **Inputs to try:** the `id` path parameter (defaults to the first product from **List
+  products**). An unknown id returns 404.
+
+  **Expect:** 200 with the product.
 }

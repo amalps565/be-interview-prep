@@ -40,3 +40,12 @@ tests {
     expect(res.headers["location"]).to.equal("/api/products/" + res.body.id);
   });
 }
+
+docs {
+  Adds a product with the admin token and stores its id in `newProductId`.
+
+  **Inputs to try:** `name` (up to 100 characters), `category` (up to 50), `price` (0 or more, 2
+  decimals), `stock` (0 or more) and `rating` (0 to 5). A bad value returns 400 with `fieldErrors`.
+
+  **Expect:** 201 with the product and a `Location` header.
+}

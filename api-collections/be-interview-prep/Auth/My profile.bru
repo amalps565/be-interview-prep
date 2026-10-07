@@ -16,7 +16,13 @@ tests {
   });
 
   test("returns the logged-in user", function () {
-    expect(res.body.email).to.equal(bru.getVar("userEmail"));
+    expect(res.body.email).to.equal(bru.getEnvVar("userEmail").toLowerCase());
     expect(res.body.role).to.equal("USER");
   });
+}
+
+docs {
+  Returns the profile of whoever owns the token.
+
+  **Expect:** 200 with your `id`, `email`, `role` and `createdAt`.
 }

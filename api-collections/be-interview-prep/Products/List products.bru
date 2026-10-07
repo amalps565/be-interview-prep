@@ -40,3 +40,14 @@ tests {
     }
   });
 }
+
+docs {
+  Lists the catalog a page at a time and stores the first product's id in `firstProductId`.
+
+  **Inputs to try:** the `page` (zero-based), `size` (default 20, at most 100) and `sort` query
+  parameters. `sort` takes `field,asc` or `field,desc` on `id`, `name`, `category`, `price`,
+  `stock`, `rating` or `createdAt`.
+
+  **Expect:** 200 with `content`, `page`, `size`, `totalElements` (100 seeded products or more) and
+  `totalPages`.
+}

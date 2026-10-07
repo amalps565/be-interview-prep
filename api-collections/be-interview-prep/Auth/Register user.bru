@@ -10,24 +10,35 @@ post {
   auth: none
 }
 
-headers {
-  Content-Type: application/json
-}
-
-script:pre-request {
-  const suffix = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-  bru.setVar("userEmail", "user-" + suffix + "@example.test");
-  bru.setVar("userPassword", "pw-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
-  req.setBody({ email: bru.getVar("userEmail"), password: bru.getVar("userPassword") });
+body:json {
+  {
+    "email": "{{userEmail}}",
+    "password": "{{yourPassword}}"
+  }
 }
 
 tests {
-  test("returns 201 Created", function () {
-    expect(res.status).to.equal(201);
+  test("returns 201 Created, or 409 when the account already exists", function () {
+    expect(res.status).to.be.oneOf([201, 409]);
   });
 
-  test("creates a USER with the submitted email", function () {
-    expect(res.body.email).to.equal(bru.getVar("userEmail"));
-    expect(res.body.role).to.equal("USER");
+  test("creates a USER, or explains the email is taken", function () {
+    if (res.status === 201) {
+      expect(res.body.email).to.equal(bru.getEnvVar("userEmail").toLowerCase());
+      expect(res.body.role).to.equal("USER");
+    } else {
+      expect(res.body.message).to.equal("An account with this email already exists");
+    }
   });
+}
+
+docs {
+  Creates a `USER` account. No token is needed.
+
+  **Inputs to try:** the `userEmail` and `yourPassword` values in the `local` environment. The
+  password must be 8 to 72 characters; a bad email or a short password returns 400 with
+  `fieldErrors`. A `role` in the body is ignored.
+
+  **Expect:** 201 with the new user the first time, 409 "An account with this email already exists"
+  when you send it again with the same email.
 }

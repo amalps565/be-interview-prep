@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9] - 2026-10-07
+
+### Changed
+
+- **Docs: Every Bruno request now shows its real inputs, so the APIs can be checked by hand.**
+  Register and login send a visible JSON body built from the `local` environment's `userEmail` and
+  `yourPassword`, and the admin password is the secret `yourAdminPassword`. Ids and short codes
+  appear as path parameters, the short-link URL and custom code as request variables, and the
+  order `Idempotency-Key` as a header. Every request has a Docs tab saying what it does, what to
+  change and which status to expect. A second run against the same app also passes, because an
+  existing user, URL or custom code is accepted as 409 or 200 instead of failing.
+  `api-collections/README.md` has a new "Check the APIs by hand" section.
+  [#14](https://github.com/amalps565/be-interview-prep/pull/14)
+
 ## [0.0.8] - 2026-10-07
 
 ### Added

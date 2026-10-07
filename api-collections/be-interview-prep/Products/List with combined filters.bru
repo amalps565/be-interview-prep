@@ -45,3 +45,13 @@ tests {
     }
   });
 }
+
+docs {
+  Combines every filter in one request. Untick a parameter in the Params tab to drop that filter.
+
+  **Inputs to try:** `category` (ignores case: Electronics, Books, Home, Garden, Toys, Sports,
+  Beauty, Grocery), `minPrice` and `maxPrice` (inclusive), `inStock=true`, `name` (part of the
+  name, ignoring case) and `sort`. A `minPrice` above `maxPrice` returns 400.
+
+  **Expect:** 200 with only products that match every filter, most expensive first.
+}

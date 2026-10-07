@@ -12,23 +12,38 @@ post {
 
 body:json {
   {
-    "url": "{{longUrl}}",
+    "url": "{{shortenedUrl}}",
     "customCode": "{{customCode}}",
     "expiresAt": "2030-01-01T00:00:00Z"
   }
 }
 
-script:pre-request {
-  bru.setVar("customCode", "b" + Math.random().toString(36).slice(2, 9));
+vars:pre-request {
+  customCode: my-link
 }
 
 tests {
-  test("returns 201 Created", function () {
-    expect(res.status).to.equal(201);
+  test("returns 201 for a free code, or 409 when the code is already taken", function () {
+    expect(res.status).to.be.oneOf([201, 409]);
   });
 
-  test("uses the requested code and expiry", function () {
-    expect(res.body.code).to.equal(bru.getVar("customCode"));
-    expect(res.body.expiresAt).to.equal("2030-01-01T00:00:00Z");
+  test("uses the requested code, or says it is taken", function () {
+    const customCode = bru.getRequestVar("customCode");
+    if (res.status === 201) {
+      expect(res.body.code).to.equal(customCode);
+      expect(res.body.expiresAt).to.equal("2030-01-01T00:00:00Z");
+    } else {
+      expect(res.body.message).to.equal("Short code " + customCode + " is already taken");
+    }
   });
+}
+
+docs {
+  Shortens a URL with a code you choose and an expiry date.
+
+  **Inputs to try:** the `customCode` request variable (Vars tab): 3 to 8 letters, digits, `-` or
+  `_`. Anything else returns 400. Codes are unique, so pick a new one each time, such as `my-l1nk`.
+
+  **Expect:** 201 with your code the first time; 409 "Short code my-link is already taken" when the
+  code is already used, for example on a second run of the collection.
 }

@@ -16,22 +16,33 @@ body:json {
   }
 }
 
-script:pre-request {
-  bru.setVar("longUrl", "https://example.com/bruno/" + Date.now() + "/a/long/path");
+vars:pre-request {
+  longUrl: https://example.com/some/very/long/path
 }
 
 script:post-response {
   bru.setVar("code", res.body.code);
+  bru.setVar("shortenedUrl", res.body.originalUrl);
 }
 
 tests {
-  test("returns 201 Created", function () {
-    expect(res.status).to.equal(201);
+  test("returns 201 for a new link, or 200 when this URL was shortened before", function () {
+    expect(res.status).to.be.oneOf([200, 201]);
   });
 
   test("returns a code and a short URL for the original URL", function () {
     expect(res.body.code).to.match(/^[A-Za-z0-9_-]{3,8}$/);
     expect(res.body.shortUrl).to.equal(bru.getEnvVar("baseUrl") + "/" + res.body.code);
-    expect(res.body.originalUrl).to.equal(bru.getVar("longUrl"));
+    expect(res.body.originalUrl).to.equal(bru.getRequestVar("longUrl"));
   });
+}
+
+docs {
+  Shortens a long URL and stores the result in `code` and `shortenedUrl` for the requests below.
+
+  **Inputs to try:** the `longUrl` request variable (Vars tab). Only `http` and `https` URLs are
+  accepted. You can also add `"expiresAt": "2030-01-01T00:00:00Z"` to the body.
+
+  **Expect:** 201 with `code` and `shortUrl` the first time a URL is shortened, and 200 with the same
+  link when the same URL and expiry are sent again.
 }

@@ -10,12 +10,11 @@ post {
   auth: none
 }
 
-headers {
-  Content-Type: application/json
-}
-
-script:pre-request {
-  req.setBody({ email: bru.getEnvVar("adminEmail"), password: bru.getEnvVar("adminPassword") });
+body:json {
+  {
+    "email": "{{adminEmail}}",
+    "password": "{{yourAdminPassword}}"
+  }
 }
 
 script:post-response {
@@ -30,4 +29,14 @@ tests {
   test("returns a bearer access token", function () {
     expect(res.body.accessToken).to.be.a("string").and.not.be.empty;
   });
+}
+
+docs {
+  Logs in as the admin the app created from `ADMIN_EMAIL` and `ADMIN_PASSWORD`, and stores the token
+  in `adminToken`. The admin requests in this collection send that token instead of `token`.
+
+  **Inputs:** fill the secret values `adminEmail` and `yourAdminPassword` in the `local`
+  environment with the values the app was started with.
+
+  **Expect:** 200 with `accessToken`.
 }

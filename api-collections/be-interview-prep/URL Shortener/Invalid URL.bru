@@ -26,3 +26,12 @@ tests {
     expect(fields).to.include("url");
   });
 }
+
+docs {
+  Tries to shorten something that is not an `http` or `https` URL.
+
+  **Inputs to try:** `"ftp://example.com"` or a blank `url` also fail; a past `expiresAt` adds an
+  `expiresAt` error.
+
+  **Expect:** 400 with a `fieldErrors` entry for `url`.
+}

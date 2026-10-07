@@ -37,3 +37,13 @@ tests {
     expect(res.body.stock).to.equal(2);
   });
 }
+
+docs {
+  Adds product A (price 10.00, stock 2) with the admin token and stores its id in `productAId`, so
+  the order requests below work with known stock numbers.
+
+  **Inputs to try:** `price` and `stock` in the body; the order total and stock checks below assume
+  10.00 and 2.
+
+  **Expect:** 201 with the product.
+}

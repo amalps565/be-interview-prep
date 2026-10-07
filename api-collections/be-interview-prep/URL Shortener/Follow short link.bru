@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/{{code}}
+  url: {{baseUrl}}/:code
   body: none
   auth: none
+}
+
+params:path {
+  code: {{code}}
 }
 
 settings {
@@ -21,6 +25,16 @@ tests {
   });
 
   test("redirects to the original URL", function () {
-    expect(res.headers["location"]).to.equal(bru.getVar("longUrl"));
+    expect(res.headers["location"]).to.equal(bru.getVar("shortenedUrl"));
   });
+}
+
+docs {
+  Opens the short link without a token, like a browser would. Redirect following is turned off in
+  Settings so you can see the redirect itself.
+
+  **Inputs to try:** the `code` path parameter. An unknown code returns 404 and an expired one 410.
+
+  **Expect:** 302 with a `Location` header pointing at the original URL. Each visit adds one to the
+  link's visit count.
 }

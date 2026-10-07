@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/tasks/{{taskId}}
+  url: {{baseUrl}}/api/tasks/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{taskId}}
 }
 
 tests {
@@ -19,4 +23,10 @@ tests {
     expect(res.body.status).to.equal(404);
     expect(res.body.path).to.equal("/api/tasks/" + bru.getVar("taskId"));
   });
+}
+
+docs {
+  Reads the task that **Delete task** removed.
+
+  **Expect:** 404 in the shared JSON error format.
 }
