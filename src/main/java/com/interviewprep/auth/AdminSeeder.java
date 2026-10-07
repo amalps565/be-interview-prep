@@ -34,6 +34,6 @@ public class AdminSeeder implements ApplicationRunner {
       return;
     }
     users.save(new AppUser(email, passwordEncoder.encode(admin.password()), Role.ADMIN));
-    log.info("Created admin account {}", email);
+    log.info("Created the admin account from ADMIN_EMAIL");
   }
 }
