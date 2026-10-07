@@ -5,23 +5,29 @@ Five Spring Boot features built for the backend interview prep assignment. Each 
 ## Stack
 
 - Java 21
-- Spring Boot 3.5 (Web, Validation, Data JPA), springdoc-openapi for Swagger UI
+- Spring Boot 3.5 (Web, Validation, Data JPA, Security with OAuth2 resource server for JWT), springdoc-openapi for Swagger UI
 - H2 in-memory database
 - Maven (wrapper included), JUnit 5, Spotless with google-java-format
 
 ## Run the app
 
+The app signs login tokens with a key from the `JWT_SECRET` environment variable (at least 32 bytes) and will not start without it. `ADMIN_EMAIL` and `ADMIN_PASSWORD` are optional; when both are set, an admin account is created on startup.
+
 ```bash
+export JWT_SECRET="$(openssl rand -base64 48)"
+export ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='choose-a-password'
 ./mvnw spring-boot:run
 ```
 
-On Windows use `mvnw.cmd spring-boot:run`. The app starts on `http://localhost:8080`.
+On Windows PowerShell set them with `$env:JWT_SECRET = "..."` and run `mvnw.cmd spring-boot:run`. The app starts on `http://localhost:8080`.
 
 ## Run the tests
 
 ```bash
 ./mvnw test
 ```
+
+The tests run with the `test` profile, which generates a random signing key and admin password on every run, so no credential is stored in the repository.
 
 Format the code before committing:
 
@@ -38,6 +44,23 @@ Interactive documentation: `http://localhost:8080/swagger-ui.html`. Every error 
 ```json
 {"timestamp": "...", "status": 400, "error": "Bad Request", "message": "Validation failed",
  "path": "/api/tasks", "fieldErrors": [{"field": "title", "message": "is required"}]}
+```
+
+### Authentication (Q3)
+
+Every `/api/**` endpoint except register and login needs `Authorization: Bearer <token>`. Short-link redirects (`/{code}`) and Swagger UI stay public. A missing, expired or invalid token returns 401 and a missing role returns 403, both in the JSON error format.
+
+| Method | Path | Who | Result |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | anyone | 201 with the new `USER`; 409 if the email exists |
+| `POST` | `/api/auth/login` | anyone | 200 with `accessToken` valid for 15 minutes; 401 for bad credentials |
+| `GET` | `/api/users/me` | any logged-in user | 200 with their own profile |
+| `GET` | `/api/admin/users` | `ADMIN` only | 200 with all users; 403 for `USER` |
+
+```bash
+curl -X POST localhost:8080/api/auth/register -H "Content-Type: application/json"   -d '{"email":"me@example.com","password":"a-long-password"}'
+TOKEN=$(curl -s -X POST localhost:8080/api/auth/login -H "Content-Type: application/json"   -d '{"email":"me@example.com","password":"a-long-password"}' | jq -r .accessToken)
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/api/users/me
 ```
 
 ### Tasks (Q1)
@@ -76,7 +99,7 @@ curl localhost:8080/api/urls/<code>/stats
 |---|----------|---------|
 | 1 | Task Manager API | [#7](https://github.com/amalps565/be-interview-prep/pull/7) |
 | 2 | URL Shortener | [#8](https://github.com/amalps565/be-interview-prep/pull/8) |
-| 3 | Authentication & Roles | |
+| 3 | Authentication & Roles | [#10](https://github.com/amalps565/be-interview-prep/pull/10) |
 | 4 | Product Catalog | |
 | 5 | Order Service | |
 
