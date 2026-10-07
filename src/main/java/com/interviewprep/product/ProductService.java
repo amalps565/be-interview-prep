@@ -6,7 +6,10 @@ import com.interviewprep.common.web.PageResponse;
 import com.interviewprep.product.dto.ProductFilter;
 import com.interviewprep.product.dto.ProductRequest;
 import com.interviewprep.product.dto.ProductResponse;
-import java.util.Set;
+import java.util.List;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -15,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProductService {
 
-  public static final Set<String> SORTABLE_FIELDS =
-      Set.of("id", "name", "category", "price", "stock", "rating", "createdAt");
+  public static final String CACHE_NAME = "products";
+
+  private static final List<String> SORTABLE_FIELDS =
+      List.of("id", "name", "category", "price", "stock", "rating", "createdAt");
 
   private static final String RESOURCE = "Product";
 
@@ -36,6 +41,7 @@ public class ProductService {
             .map(ProductResponse::from));
   }
 
+  @Cacheable(cacheNames = CACHE_NAME, key = "#id")
   @Transactional(readOnly = true)
   public ProductResponse get(Long id) {
     return ProductResponse.from(find(id));
@@ -53,6 +59,7 @@ public class ProductService {
     return ProductResponse.from(productRepository.save(product));
   }
 
+  @CachePut(cacheNames = CACHE_NAME, key = "#id")
   @Transactional
   public ProductResponse update(Long id, ProductRequest request) {
     Product product = find(id);
@@ -65,6 +72,7 @@ public class ProductService {
     return ProductResponse.from(product);
   }
 
+  @CacheEvict(cacheNames = CACHE_NAME, key = "#id")
   @Transactional
   public void delete(Long id) {
     productRepository.delete(find(id));
@@ -81,8 +89,7 @@ public class ProductService {
   private void rejectUnknownSortFields(Sort sort) {
     for (Sort.Order order : sort) {
       if (!SORTABLE_FIELDS.contains(order.getProperty())) {
-        throw new InvalidFieldException(
-            "sort", "must be one of " + SORTABLE_FIELDS.stream().sorted().toList());
+        throw new InvalidFieldException("sort", "must be one of " + SORTABLE_FIELDS);
       }
     }
   }
