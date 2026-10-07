@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/tasks/{{taskId}}
+  url: {{baseUrl}}/api/tasks/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: {{taskId}}
 }
 
 tests {
@@ -19,4 +23,13 @@ tests {
     expect(res.body.id).to.equal(bru.getVar("taskId"));
     expect(res.body.title).to.equal("Write tests");
   });
+}
+
+docs {
+  Reads one task.
+
+  **Inputs to try:** the `id` path parameter (defaults to `taskId` from **Create task**). An unknown
+  id returns 404.
+
+  **Expect:** 200 with the task.
 }

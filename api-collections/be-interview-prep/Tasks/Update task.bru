@@ -5,9 +5,13 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/api/tasks/{{taskId}}
+  url: {{baseUrl}}/api/tasks/:id
   body: json
   auth: inherit
+}
+
+params:path {
+  id: {{taskId}}
 }
 
 body:json {
@@ -30,4 +34,12 @@ tests {
     expect(res.body.status).to.equal("DONE");
     expect(res.body.dueDate).to.equal("2030-06-30");
   });
+}
+
+docs {
+  Replaces a task's fields.
+
+  **Inputs to try:** the `id` path parameter and any field in the body. `title` is still required.
+
+  **Expect:** 200 with the updated task; 404 for an unknown id.
 }

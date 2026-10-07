@@ -26,3 +26,12 @@ tests {
     expect(ids).to.include(bru.getVar("taskId"));
   });
 }
+
+docs {
+  Lists only the tasks with one status.
+
+  **Inputs to try:** the `status` query parameter (`TODO`, `IN_PROGRESS`, `DONE`). Any other value
+  returns 400 naming the allowed values.
+
+  **Expect:** 200 with only matching tasks.
+}

@@ -35,3 +35,12 @@ tests {
     expect(res.headers["location"]).to.equal("/api/tasks/" + res.body.id);
   });
 }
+
+docs {
+  Creates a task and stores its id in `taskId` for the requests below.
+
+  **Inputs to try:** `title` (required, up to 100 characters), `description` (up to 2000),
+  `status` (`TODO`, `IN_PROGRESS` or `DONE`; defaults to `TODO`) and `dueDate` (today or later).
+
+  **Expect:** 201 with the task and a `Location` header; 400 with `fieldErrors` for bad input.
+}
