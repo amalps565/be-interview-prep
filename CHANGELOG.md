@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8] - 2026-10-07
+
+### Added
+
+- **Orders: A customer can order several products at once, and the order takes all of them or
+  none.** `POST /api/orders` with an `items` list reserves every line in one transaction. If any
+  product is short, the request returns 409 naming that product, the transaction rolls back, and no
+  stock is taken for the other lines. Lines for the same product are merged, and an unknown product
+  returns 404. [#6](https://github.com/amalps565/be-interview-prep/issues/6)
+- **Orders: Stock never goes negative or gets oversold, however many people order at once.** Each
+  line is reserved with a single conditional `UPDATE … SET stock = stock - qty WHERE stock >= qty`,
+  so the database decides who gets the last item instead of a read-then-write in Java. Lines are
+  reserved in product-id order so two orders never deadlock. A test fires 50 simultaneous orders at
+  a product with stock 10: exactly 10 succeed, 40 get 409, and stock ends at 0.
+  [#6](https://github.com/amalps565/be-interview-prep/issues/6)
+- **Orders: A retried request never creates a second order.** The client sends an
+  `Idempotency-Key` header, unique per customer and stored with a hash of the order lines. Sending
+  the same key and body again returns the original order with 200 and `Idempotent-Replayed: true`,
+  and reusing a key for a different order returns 422. When copies of one request race each other,
+  a unique constraint lets exactly one insert win and the rest return that order; a test sends 20 at
+  once and gets one order with stock taken once.
+  [#6](https://github.com/amalps565/be-interview-prep/issues/6)
+- **Orders: Cancelling an order puts its stock back, once.** `POST /api/orders/{id}/cancel` changes
+  the status only while it is `PLACED`, then returns each line's quantity, so a second cancel gets
+  409 and cannot return stock twice. Customers can only see and cancel their own orders; anyone
+  else's order is a 404. [#6](https://github.com/amalps565/be-interview-prep/issues/6)
+- **Orders: Product reads show the new stock straight after an order or cancel.** Every stock
+  change evicts the product's cached entry after the transaction commits.
+  [#6](https://github.com/amalps565/be-interview-prep/issues/6)
+
 ## [0.0.6] - 2026-10-07
 
 ### Added

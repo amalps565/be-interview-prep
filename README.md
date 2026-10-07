@@ -128,6 +128,29 @@ Single-product lookups are cached in memory (Caffeine, up to 10,000 entries, 10-
 - `ProductCacheTest` wraps the repository in a Mockito spy, requests the same product twice and verifies `findById` ran once. It also checks that the next lookup after an update returns the new price and the next lookup after a delete returns 404.
 - Run the app with `./mvnw spring-boot:run -Dspring-boot.run.arguments=--spring.jpa.show-sql=true` and request `/api/products/1` repeatedly: the log shows one `select` for the first request and none after.
 
+### Orders (Q5)
+
+Every order request needs an `Idempotency-Key` header (1 to 100 characters, for example a UUID the client creates once per order and reuses on every retry). The key is unique per customer and is stored with a SHA-256 hash of the order lines.
+
+| Method | Path | Result |
+|---|---|---|
+| `POST` | `/api/orders` | 201 with the order; 200 with `Idempotent-Replayed: true` when the same key and body are sent again; 409 when any item lacks stock (nothing is reserved); 422 when the key was used for a different order; 400 without a key |
+| `GET` | `/api/orders/{id}` | 200 for your own order, 404 otherwise |
+| `POST` | `/api/orders/{id}/cancel` | 200 with status `CANCELLED` and the stock returned; 409 if already cancelled |
+
+```bash
+KEY=$(uuidgen)
+curl -X POST localhost:8080/api/orders -H "Authorization: Bearer $TOKEN"   -H "Idempotency-Key: $KEY" -H "Content-Type: application/json"   -d '{"items":[{"productId":1,"quantity":2},{"productId":2,"quantity":1}]}'
+```
+
+How it stays correct under load:
+
+- Each item is reserved with one statement, `UPDATE products SET stock = stock - :qty WHERE id = :id AND stock >= :qty`. The database applies it atomically, so two buyers can never both take the last item, and stock can never go negative. If it updates no row, the item is short.
+- All items of one order are reserved in one transaction, in product-id order. A short item throws, the transaction rolls back, and every earlier reservation is undone. The fixed order means two orders never lock the same rows in opposite order, so they cannot deadlock.
+- A retry is recognised by `(customer, Idempotency-Key)`, which has a unique constraint. A key that already exists returns the stored order. Two copies of one request that race each other both try to insert, the constraint lets exactly one win, and the loser returns the winner's order.
+- Cancelling changes the status only `WHERE status = 'PLACED'`, so a double cancel cannot return stock twice.
+- Every stock change evicts the product from the Q4 cache after commit, so product reads never show old stock.
+
 ## Questions
 
 | # | Question | PR link |
@@ -136,6 +159,6 @@ Single-product lookups are cached in memory (Caffeine, up to 10,000 entries, 10-
 | 2 | URL Shortener | [#8](https://github.com/amalps565/be-interview-prep/pull/8) |
 | 3 | Authentication & Roles | [#10](https://github.com/amalps565/be-interview-prep/pull/10) |
 | 4 | Product Catalog | [#11](https://github.com/amalps565/be-interview-prep/pull/11) |
-| 5 | Order Service | |
+| 5 | Order Service | [#13](https://github.com/amalps565/be-interview-prep/pull/13) |
 
 **Video:**
