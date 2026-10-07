@@ -69,9 +69,16 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     chain.doFilter(request, response);
   }
 
+  int trackedClients() {
+    return windows.size();
+  }
+
   private void evictExpired(Instant now) {
     if (windows.size() > MAX_TRACKED_CLIENTS) {
       windows.values().removeIf(entry -> entry.endsBefore(now, window));
+      if (windows.size() > MAX_TRACKED_CLIENTS) {
+        windows.clear();
+      }
     }
   }
 
