@@ -13,8 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +127,23 @@ class ProductCatalogApiIntegrationTest {
     content.forEach(item -> prices.add(item.get("price").decimalValue()));
     assertThat(prices).hasSize(ProductSeeder.PRODUCT_COUNT);
     assertThat(prices).isSortedAccordingTo(Comparator.reverseOrder());
+  }
+
+  @Test
+  void pagingBySharedValuesReturnsEveryProductExactlyOnce() throws Exception {
+    Set<Long> seen = new HashSet<>();
+    int pages = (ProductSeeder.PRODUCT_COUNT + 6) / 7;
+
+    for (int page = 0; page < pages; page++) {
+      fetch(
+              get("/api/products")
+                  .param("sort", "category,asc")
+                  .param("size", "7")
+                  .param("page", String.valueOf(page)))
+          .forEach(item -> assertThat(seen.add(item.get("id").asLong())).isTrue());
+    }
+
+    assertThat(seen).hasSize(ProductSeeder.PRODUCT_COUNT);
   }
 
   @Test
