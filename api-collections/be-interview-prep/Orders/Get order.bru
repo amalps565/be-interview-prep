@@ -1,0 +1,23 @@
+meta {
+  name: Get order
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/orders/{{orderId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the placed order", function () {
+    expect(res.body.id).to.equal(bru.getVar("orderId"));
+    expect(res.body.status).to.equal("PLACED");
+    expect(res.body.total).to.equal(22.5);
+  });
+}

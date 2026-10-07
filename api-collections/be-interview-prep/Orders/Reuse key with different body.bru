@@ -1,0 +1,34 @@
+meta {
+  name: Reuse key with different body
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": {{productBId}}, "quantity": 1 }
+    ]
+  }
+}
+
+tests {
+  test("returns 422 Unprocessable Entity", function () {
+    expect(res.status).to.equal(422);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(422);
+    expect(res.body.path).to.equal("/api/orders");
+  });
+}

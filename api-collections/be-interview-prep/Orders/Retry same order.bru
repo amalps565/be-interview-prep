@@ -1,0 +1,36 @@
+meta {
+  name: Retry same order
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": {{productAId}}, "quantity": 2 },
+      { "productId": {{productBId}}, "quantity": 1 }
+    ]
+  }
+}
+
+tests {
+  test("returns 200 OK for a replay", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("marks the replay and returns the same order", function () {
+    expect(res.headers["idempotent-replayed"]).to.equal("true");
+    expect(res.body.id).to.equal(bru.getVar("orderId"));
+    expect(res.body.total).to.equal(22.5);
+  });
+}

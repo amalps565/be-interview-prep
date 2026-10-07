@@ -1,0 +1,30 @@
+meta {
+  name: Missing Idempotency-Key
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": {{productBId}}, "quantity": 1 }
+    ]
+  }
+}
+
+tests {
+  test("returns 400 Bad Request", function () {
+    expect(res.status).to.equal(400);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(400);
+    expect(res.body.path).to.equal("/api/orders");
+  });
+}

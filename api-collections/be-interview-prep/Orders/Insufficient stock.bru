@@ -1,0 +1,39 @@
+meta {
+  name: Insufficient stock
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Idempotency-Key: {{shortStockKey}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": {{productBId}}, "quantity": 1 },
+      { "productId": {{productAId}}, "quantity": 1 }
+    ]
+  }
+}
+
+script:pre-request {
+  bru.setVar("shortStockKey", "short-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10));
+}
+
+tests {
+  test("returns 409 Conflict", function () {
+    expect(res.status).to.equal(409);
+  });
+
+  test("names the product that is out of stock", function () {
+    expect(res.body.message).to.include("Bruno Order Kettle");
+    expect(res.body.message).to.include(String(bru.getVar("productAId")));
+  });
+}
