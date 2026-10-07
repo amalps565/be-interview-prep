@@ -1,0 +1,37 @@
+meta {
+  name: Shorten URL
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/urls
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "url": "{{longUrl}}"
+  }
+}
+
+script:pre-request {
+  bru.setVar("longUrl", "https://example.com/bruno/" + Date.now() + "/a/long/path");
+}
+
+script:post-response {
+  bru.setVar("code", res.body.code);
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns a code and a short URL for the original URL", function () {
+    expect(res.body.code).to.match(/^[A-Za-z0-9_-]{3,8}$/);
+    expect(res.body.shortUrl).to.equal(bru.getEnvVar("baseUrl") + "/" + res.body.code);
+    expect(res.body.originalUrl).to.equal(bru.getVar("longUrl"));
+  });
+}

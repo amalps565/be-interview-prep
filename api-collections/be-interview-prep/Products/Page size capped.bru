@@ -1,0 +1,26 @@
+meta {
+  name: Page size capped
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/products?size=500
+  body: none
+  auth: inherit
+}
+
+params:query {
+  size: 500
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("clamps the page size to 100", function () {
+    expect(res.body.size).to.equal(100);
+    expect(res.body.content.length).to.be.at.most(100);
+  });
+}

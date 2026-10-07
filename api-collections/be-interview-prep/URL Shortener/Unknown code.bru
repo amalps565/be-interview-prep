@@ -1,0 +1,26 @@
+meta {
+  name: Unknown code
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/nope_404
+  body: none
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+  followRedirects: false
+}
+
+tests {
+  test("returns 404 Not Found", function () {
+    expect(res.status).to.equal(404);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(404);
+  });
+}

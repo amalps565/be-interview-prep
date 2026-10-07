@@ -1,0 +1,26 @@
+meta {
+  name: Follow short link
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/{{code}}
+  body: none
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+  followRedirects: false
+}
+
+tests {
+  test("returns 302 Found", function () {
+    expect(res.status).to.equal(302);
+  });
+
+  test("redirects to the original URL", function () {
+    expect(res.headers["location"]).to.equal(bru.getVar("longUrl"));
+  });
+}

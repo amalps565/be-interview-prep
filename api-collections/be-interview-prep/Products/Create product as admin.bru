@@ -1,0 +1,42 @@
+meta {
+  name: Create product as admin
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/products
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bruno Test Lamp",
+    "category": "Home",
+    "price": 49.99,
+    "stock": 5,
+    "rating": 4.5
+  }
+}
+
+script:post-response {
+  bru.setVar("newProductId", res.body.id);
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns the new product and its Location", function () {
+    expect(res.body.id).to.be.a("number");
+    expect(res.body.name).to.equal("Bruno Test Lamp");
+    expect(res.body.price).to.equal(49.99);
+    expect(res.headers["location"]).to.equal("/api/products/" + res.body.id);
+  });
+}

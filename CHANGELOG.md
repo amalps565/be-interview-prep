@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2026-10-07
+
+### Added
+
+- **Docs: Anyone can now check every API with one Bruno run.** `api-collections/be-interview-prep`
+  is a Bruno collection covering registration, login, the user and admin endpoints, tasks, short
+  links and the product catalog, including the 401, 403, 404 and 400 cases. Each request checks its
+  status code and a key field, and a full run passes top to bottom against a local app. Every run
+  registers a fresh user with a random password, and the admin email and password are secret
+  environment values, so no credential is committed. `api-collections/README.md` explains how to
+  open it in Bruno and how to run it from the command line.
+  [#12](https://github.com/amalps565/be-interview-prep/pull/12)
+
 ## [0.0.6] - 2026-10-07
 
 ### Added

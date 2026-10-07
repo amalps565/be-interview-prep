@@ -1,0 +1,27 @@
+meta {
+  name: Shorten same URL again
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/urls
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "url": "{{longUrl}}"
+  }
+}
+
+tests {
+  test("returns 200 OK for an existing link", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the same code", function () {
+    expect(res.body.code).to.equal(bru.getVar("code"));
+  });
+}

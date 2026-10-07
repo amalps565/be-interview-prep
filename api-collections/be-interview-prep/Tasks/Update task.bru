@@ -1,0 +1,33 @@
+meta {
+  name: Update task
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/tasks/{{taskId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Write more tests",
+    "description": "Updated from Bruno",
+    "status": "DONE",
+    "dueDate": "2030-06-30"
+  }
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the updated task", function () {
+    expect(res.body.id).to.equal(bru.getVar("taskId"));
+    expect(res.body.title).to.equal("Write more tests");
+    expect(res.body.status).to.equal("DONE");
+    expect(res.body.dueDate).to.equal("2030-06-30");
+  });
+}

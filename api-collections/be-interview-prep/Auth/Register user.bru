@@ -1,0 +1,33 @@
+meta {
+  name: Register user
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:pre-request {
+  const suffix = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  bru.setVar("userEmail", "user-" + suffix + "@example.test");
+  bru.setVar("userPassword", "pw-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
+  req.setBody({ email: bru.getVar("userEmail"), password: bru.getVar("userPassword") });
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("creates a USER with the submitted email", function () {
+    expect(res.body.email).to.equal(bru.getVar("userEmail"));
+    expect(res.body.role).to.equal("USER");
+  });
+}
