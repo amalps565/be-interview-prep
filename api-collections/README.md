@@ -1,8 +1,8 @@
 # API collections
 
 `be-interview-prep/` is a [Bruno](https://www.usebruno.com) collection with a request and a test for
-every endpoint: authentication (Q3), tasks (Q1) and the URL shortener (Q2), including the error
-cases (400, 401, 403, 404).
+every endpoint: authentication (Q3), tasks (Q1), the URL shortener (Q2) and the product catalog
+(Q4), including the error cases (400, 401, 403, 404).
 
 ## Start the app
 
@@ -21,10 +21,10 @@ export ADMIN_PASSWORD='<choose-a-password>'
 1. In Bruno, choose **Open Collection** and pick the `api-collections/be-interview-prep` folder.
 2. Pick the **local** environment in the top-right environment selector.
 3. Open the environment settings and fill in the two secret values, `adminEmail` and
-   `adminPassword`, with the `ADMIN_EMAIL` and `ADMIN_PASSWORD` the app was started with. Bruno keeps
-   secret values on your machine only, so they never end up in the `.bru` files.
-4. Open the collection's `...` menu and choose **Run** to run every request top to bottom, or send them
-   one by one in the order below.
+   `adminPassword`, with the `ADMIN_EMAIL` and `ADMIN_PASSWORD` the app was started with. Bruno
+   keeps secret values on your machine only, so they never end up in the `.bru` files.
+4. Open the collection's `...` menu and choose **Run** to run every request top to bottom, or send
+   them one by one in the order below.
 
 ## Run order
 
@@ -35,11 +35,15 @@ The requests share variables, so run them in this order (the runner does this by
 | Auth | Register user, Login user, My profile, List users as USER (403), Login admin, List users as admin, Request without token (401) | `userEmail`, `userPassword`, `token`, `adminToken` |
 | Tasks | Create task, List tasks, Filter by status, Get task, Update task, Delete task, Get deleted task (404), Create invalid task (400) | `taskId` |
 | URL Shortener | Shorten URL, Shorten same URL again (200, same code), Shorten with custom code, Follow short link (302), Stats, Unknown code (404), Invalid URL (400) | `longUrl`, `code`, `customCode` |
+| Products | List products, List with combined filters, Page size capped (500 becomes 100), Unknown sort field (400), Get product, Get product again, Create product as USER (403), Create product as admin, Get new product, Update product as admin, Get updated product, Delete product as admin, Get deleted product (404) | `firstProductId`, `productId`, `newProductId` |
 
 - **Register user** makes a fresh email and a random password for every run, so the collection can
   be run again against the same app without a 409.
 - **Login user** stores the access token in `token`, which the collection sends as
-  `Authorization: Bearer {{token}}`. **List users as admin** overrides that with `{{adminToken}}`.
+  `Authorization: Bearer {{token}}`. **List users as admin** and the admin product requests override
+  that with `{{adminToken}}`, so Auth must run before the other folders.
+- **Get new product** reads the new product once so it is cached; **Get updated product** then
+  proves the cache returns the new price, not the old one.
 - The register and login request bodies are built in their pre-request scripts so no password is
   written in a `.bru` file.
 - **Follow short link** and **Unknown code** turn off redirect following for that request, so the
