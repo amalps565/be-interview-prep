@@ -1,0 +1,28 @@
+meta {
+  name: Invalid URL
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/urls
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "url": "not-a-url"
+  }
+}
+
+tests {
+  test("returns 400 Bad Request", function () {
+    expect(res.status).to.equal(400);
+  });
+
+  test("names the url field", function () {
+    const fields = res.body.fieldErrors.map(function (error) { return error.field; });
+    expect(fields).to.include("url");
+  });
+}

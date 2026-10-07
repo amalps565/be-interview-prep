@@ -1,0 +1,22 @@
+meta {
+  name: Get deleted task
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/tasks/{{taskId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 404 Not Found", function () {
+    expect(res.status).to.equal(404);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(404);
+    expect(res.body.path).to.equal("/api/tasks/" + bru.getVar("taskId"));
+  });
+}

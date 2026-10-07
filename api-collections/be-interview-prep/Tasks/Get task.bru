@@ -1,0 +1,22 @@
+meta {
+  name: Get task
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/tasks/{{taskId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the created task", function () {
+    expect(res.body.id).to.equal(bru.getVar("taskId"));
+    expect(res.body.title).to.equal("Write tests");
+  });
+}

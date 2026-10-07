@@ -1,0 +1,23 @@
+meta {
+  name: Stats
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/urls/{{code}}/stats
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("counts the visit from the redirect", function () {
+    expect(res.body.code).to.equal(bru.getVar("code"));
+    expect(res.body.originalUrl).to.equal(bru.getVar("longUrl"));
+    expect(res.body.visitCount).to.equal(1);
+  });
+}
