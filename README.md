@@ -29,6 +29,8 @@ Format the code before committing:
 ./mvnw spotless:apply
 ```
 
+See [WIKI.md](WIKI.md) for the full assignment brief.
+
 ## Questions
 
 | # | Question | PR link |

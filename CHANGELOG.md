@@ -10,3 +10,4 @@ All notable changes to this project are documented here. The format follows [Kee
 - Maven wrapper and Spotless formatting with google-java-format.
 - Pull request description template.
 - README with run and test instructions and the question table.
+- Wiki with the full assignment brief: workflow, questions, acceptance criteria and submission checklist.
