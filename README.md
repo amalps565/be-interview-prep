@@ -135,7 +135,7 @@ Single-product lookups are cached in memory (Caffeine, up to 10,000 entries, 10-
 | 1 | Task Manager API | [#7](https://github.com/amalps565/be-interview-prep/pull/7) |
 | 2 | URL Shortener | [#8](https://github.com/amalps565/be-interview-prep/pull/8) |
 | 3 | Authentication & Roles | [#10](https://github.com/amalps565/be-interview-prep/pull/10) |
-| 4 | Product Catalog | |
+| 4 | Product Catalog | [#11](https://github.com/amalps565/be-interview-prep/pull/11) |
 | 5 | Order Service | |
 
 **Video:**
