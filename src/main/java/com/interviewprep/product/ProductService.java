@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -37,11 +38,20 @@ public class ProductService {
     rejectUnknownSortFields(pageable.getSort());
     return PageResponse.from(
         productRepository
-            .findAll(ProductSpecifications.matching(filter), pageable)
+            .findAll(ProductSpecifications.matching(filter), withIdTiebreaker(pageable))
             .map(ProductResponse::from));
   }
 
-  @Cacheable(cacheNames = CACHE_NAME, key = "#id")
+  private static Pageable withIdTiebreaker(Pageable pageable) {
+    Sort sort = pageable.getSort();
+    if (sort.getOrderFor("id") != null) {
+      return pageable;
+    }
+    return PageRequest.of(
+        pageable.getPageNumber(), pageable.getPageSize(), sort.and(Sort.by("id")));
+  }
+
+  @Cacheable(cacheNames = CACHE_NAME, key = "#id", sync = true)
   @Transactional(readOnly = true)
   public ProductResponse get(Long id) {
     return ProductResponse.from(find(id));
