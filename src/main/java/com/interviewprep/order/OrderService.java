@@ -8,6 +8,7 @@ import com.interviewprep.order.dto.OrderRequest;
 import com.interviewprep.order.dto.OrderResponse;
 import com.interviewprep.product.Product;
 import com.interviewprep.product.ProductRepository;
+import com.interviewprep.product.ProductService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +31,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class OrderService {
 
   static final String IDEMPOTENCY_KEY = "Idempotency-Key";
-  static final String PRODUCT_CACHE = "products";
   private static final int MAX_KEY_LENGTH = 100;
 
   private final CustomerOrderRepository orders;
@@ -130,7 +130,7 @@ public class OrderService {
   }
 
   private void evictProducts(Collection<Long> productIds) {
-    Cache cache = cacheManager.getCache(PRODUCT_CACHE);
+    Cache cache = cacheManager.getCache(ProductService.CACHE_NAME);
     if (cache != null) {
       productIds.forEach(cache::evict);
     }
