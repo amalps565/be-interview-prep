@@ -10,12 +10,11 @@ post {
   auth: none
 }
 
-headers {
-  Content-Type: application/json
-}
-
-script:pre-request {
-  req.setBody({ email: bru.getVar("userEmail"), password: bru.getVar("userPassword") });
+body:json {
+  {
+    "email": "{{userEmail}}",
+    "password": "{{yourPassword}}"
+  }
 }
 
 script:post-response {
@@ -31,4 +30,14 @@ tests {
     expect(res.body.accessToken).to.be.a("string").and.not.be.empty;
     expect(res.body.tokenType).to.equal("Bearer");
   });
+}
+
+docs {
+  Logs in as the user from **Register user** and stores the access token in `token`. Every other
+  request in the collection sends it as `Authorization: Bearer {{token}}`.
+
+  **Inputs to try:** a wrong password returns 401 with the same message as an unknown email.
+
+  **Expect:** 200 with `accessToken` (valid for 15 minutes), `tokenType` and `expiresIn`. Send this
+  again when the token expires.
 }

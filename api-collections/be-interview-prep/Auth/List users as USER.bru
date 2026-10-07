@@ -19,3 +19,9 @@ tests {
     expect(res.body.status).to.equal(403);
   });
 }
+
+docs {
+  Calls the admin-only user list with the normal user's token.
+
+  **Expect:** 403 in the shared JSON error format, because a `USER` lacks the `ADMIN` role.
+}

@@ -20,3 +20,9 @@ tests {
     expect(res.body.path).to.equal("/api/users/me");
   });
 }
+
+docs {
+  Calls a protected endpoint with no `Authorization` header (Auth tab is set to No Auth).
+
+  **Expect:** 401 in the shared JSON error format.
+}
