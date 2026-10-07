@@ -4,6 +4,7 @@ import com.interviewprep.common.error.InvalidFieldException;
 import com.interviewprep.common.error.ResourceNotFoundException;
 import com.interviewprep.common.web.PageResponse;
 import com.interviewprep.product.dto.ProductFilter;
+import com.interviewprep.product.dto.ProductRequest;
 import com.interviewprep.product.dto.ProductResponse;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,35 @@ public class ProductService {
   @Transactional(readOnly = true)
   public ProductResponse get(Long id) {
     return ProductResponse.from(find(id));
+  }
+
+  @Transactional
+  public ProductResponse create(ProductRequest request) {
+    Product product =
+        new Product(
+            request.name().strip(),
+            request.category().strip(),
+            request.price(),
+            request.stock(),
+            request.rating());
+    return ProductResponse.from(productRepository.save(product));
+  }
+
+  @Transactional
+  public ProductResponse update(Long id, ProductRequest request) {
+    Product product = find(id);
+    product.update(
+        request.name().strip(),
+        request.category().strip(),
+        request.price(),
+        request.stock(),
+        request.rating());
+    return ProductResponse.from(product);
+  }
+
+  @Transactional
+  public void delete(Long id) {
+    productRepository.delete(find(id));
   }
 
   private void rejectInvertedPriceRange(ProductFilter filter) {
