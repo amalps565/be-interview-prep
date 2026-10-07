@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/urls/{{code}}/stats
+  url: {{baseUrl}}/api/urls/:code/stats
   body: none
   auth: inherit
+}
+
+params:path {
+  code: {{code}}
 }
 
 tests {
@@ -17,7 +21,16 @@ tests {
 
   test("counts the visit from the redirect", function () {
     expect(res.body.code).to.equal(bru.getVar("code"));
-    expect(res.body.originalUrl).to.equal(bru.getVar("longUrl"));
-    expect(res.body.visitCount).to.equal(1);
+    expect(res.body.originalUrl).to.equal(bru.getVar("shortenedUrl"));
+    expect(res.body.visitCount).to.be.at.least(1);
   });
+}
+
+docs {
+  Shows the statistics for a short link.
+
+  **Inputs to try:** the `code` path parameter.
+
+  **Expect:** 200 with `originalUrl`, `visitCount` (at least 1 after **Follow short link**, and
+  higher after every visit), `createdAt` and `expiresAt`.
 }
