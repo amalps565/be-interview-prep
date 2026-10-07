@@ -55,12 +55,27 @@ curl -X POST localhost:8080/api/tasks -H "Content-Type: application/json" \
   -d '{"title":"Write tests","status":"IN_PROGRESS","dueDate":"2030-01-01"}'
 ```
 
+### URL shortener (Q2)
+
+| Method | Path | Result |
+|---|---|---|
+| `POST` | `/api/urls` | 201 with `code` and `shortUrl`; 200 with the existing link for the same URL and expiry; 400 for an invalid URL; 409 for a taken custom code |
+| `GET` | `/{code}` | 302 to the original URL; 404 unknown; 410 expired |
+| `GET` | `/api/urls/{code}/stats` | 200 with the original URL, visit count and created date |
+
+```bash
+curl -X POST localhost:8080/api/urls -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/a/long/path","expiresAt":"2030-01-01T00:00:00Z"}'
+curl -i localhost:8080/<code>
+curl localhost:8080/api/urls/<code>/stats
+```
+
 ## Questions
 
 | # | Question | PR link |
 |---|----------|---------|
 | 1 | Task Manager API | [#7](https://github.com/amalps565/be-interview-prep/pull/7) |
-| 2 | URL Shortener | |
+| 2 | URL Shortener | [#8](https://github.com/amalps565/be-interview-prep/pull/8) |
 | 3 | Authentication & Roles | |
 | 4 | Product Catalog | |
 | 5 | Order Service | |

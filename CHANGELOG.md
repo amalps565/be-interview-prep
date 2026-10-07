@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - 2026-10-07
+
+### Added
+
+- **URL Shortener: A long URL can be turned into a short link that redirects to it.**
+  `POST /api/urls` takes a `url` and an optional future `expiresAt` and returns 201 with a 7-character
+  `code` and the full `shortUrl`. `GET /{code}` answers 302 to the original URL with
+  `Cache-Control: no-store`, because a cached 301 would let browsers skip the server and the visit
+  would never be counted. Codes are random letters and digits from `SecureRandom`, so they cannot be
+  guessed by counting, and a unique constraint on the code guarantees no two links share one.
+  [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+- **URL Shortener: Shortening the same URL twice returns the link that already exists.** When an
+  existing link has the same URL and the same expiry, the API returns it with 200 instead of creating
+  another, so repeated submissions do not fill the table with duplicates and its visit count stays
+  in one place. A different expiry gets its own link, because its lifetime differs. Each link stores
+  a SHA-256 key of its URL and expiry under a unique constraint, so even simultaneous requests for
+  the same URL end up sharing one link.
+  [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+- **URL Shortener: Every visit is counted, even when many people open a link at once.**
+  `GET /api/urls/{code}/stats` shows the original URL, the visit count and the created and expiry
+  dates. The count goes up in one `UPDATE … SET visit_count = visit_count + 1` statement, so the
+  database serialises concurrent visits and none are lost; a test fires 200 visits from 32 threads
+  and counts exactly 200. [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+- **URL Shortener: Bad input and dead links get clear errors.** A URL that is not `http` or `https`
+  with a host, or an expiry in the past, returns 400 naming the field. An unknown code returns 404,
+  and an expired code returns 410 Gone without counting the visit.
+  [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+- **URL Shortener: Users can choose their own short code.** An optional `customCode` of 3 to 8
+  letters, digits, `-` or `_` is used as the code; one that is taken, or reserved such as `api`,
+  returns 409. When several requests claim the same code at once, the database's unique constraint
+  picks one winner and the rest get 409. [#3](https://github.com/amalps565/be-interview-prep/issues/3)
+
 ## [0.0.2] - 2026-10-07
 
 ### Added
