@@ -69,6 +69,22 @@ class OrderConcurrencyTest {
     assertThat(ordersContaining(product.getId())).isEqualTo(1);
   }
 
+  @Test
+  void retriesRacingForTheLastStockAllGetTheOriginalOrder() throws Exception {
+    Product product = productRepository.save(newProduct("Last Widget", 3));
+    OrderRequest request = singleItem(product.getId(), 3);
+    String customer = "last-" + UUID.randomUUID() + "@example.test";
+    String key = UUID.randomUUID().toString();
+
+    List<Object> outcomes =
+        runAtOnce(20, i -> orderService.place(customer, key, request).order().id());
+
+    assertThat(outcomes).hasSize(20).allMatch(Long.class::isInstance);
+    assertThat(outcomes.stream().distinct()).hasSize(1);
+    assertThat(productRepository.findById(product.getId()).orElseThrow().getStock()).isZero();
+    assertThat(ordersContaining(product.getId())).isEqualTo(1);
+  }
+
   private static Product newProduct(String name, int stock) {
     return new Product(name, "Test", new BigDecimal("2.50"), stock, 4.0);
   }
