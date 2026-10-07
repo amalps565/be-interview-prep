@@ -25,7 +25,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the same key and body again returns the original order with 200 and `Idempotent-Replayed: true`,
   and reusing a key for a different order returns 422. When copies of one request race each other,
   a unique constraint lets exactly one insert win and the rest return that order; a test sends 20 at
-  once and gets one order with stock taken once.
+  once and gets one order with stock taken once. A retry that arrives while the original is still
+  taking the last items, and so finds no stock left, also returns the original order instead of a
+  misleading 409.
   [#6](https://github.com/amalps565/be-interview-prep/issues/6)
 - **Orders: Cancelling an order puts its stock back, once.** `POST /api/orders/{id}/cancel` changes
   the status only while it is `PLACED`, then returns each line's quantity, so a second cancel gets
