@@ -1,0 +1,27 @@
+meta {
+  name: List users as admin
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/admin/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("lists the admin and the registered user", function () {
+    const emails = res.body.map(function (user) { return user.email; });
+    expect(emails).to.include(bru.getVar("userEmail"));
+    expect(res.body.some(function (user) { return user.role === "ADMIN"; })).to.equal(true);
+  });
+}

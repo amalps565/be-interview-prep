@@ -1,0 +1,22 @@
+meta {
+  name: Request without token
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/users/me
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns 401 Unauthorized", function () {
+    expect(res.status).to.equal(401);
+  });
+
+  test("returns the JSON error shape", function () {
+    expect(res.body.status).to.equal(401);
+    expect(res.body.path).to.equal("/api/users/me");
+  });
+}

@@ -1,0 +1,22 @@
+meta {
+  name: My profile
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/users/me
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("returns 200 OK", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the logged-in user", function () {
+    expect(res.body.email).to.equal(bru.getVar("userEmail"));
+    expect(res.body.role).to.equal("USER");
+  });
+}
