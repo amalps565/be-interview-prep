@@ -1,11 +1,14 @@
 package com.edstem.interviewprep.task;
 
+import com.edstem.interviewprep.task.dto.OnCreate;
 import com.edstem.interviewprep.task.dto.TaskRequest;
 import com.edstem.interviewprep.task.dto.TaskResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +30,8 @@ public class TaskController {
   }
 
   @PostMapping
-  public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskRequest request) {
+  public ResponseEntity<TaskResponse> create(
+      @Validated({Default.class, OnCreate.class}) @RequestBody TaskRequest request) {
     TaskResponse created = taskService.create(request);
     return ResponseEntity.created(URI.create("/api/tasks/" + created.id())).body(created);
   }

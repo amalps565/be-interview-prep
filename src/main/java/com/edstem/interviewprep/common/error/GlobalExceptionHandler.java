@@ -72,6 +72,16 @@ public class GlobalExceptionHandler {
         List.of(new FieldErrorDetail(ex.getName(), message)));
   }
 
+  @ExceptionHandler(InvalidFieldException.class)
+  public ResponseEntity<ApiError> handleInvalidField(
+      InvalidFieldException ex, HttpServletRequest request) {
+    return build(
+        HttpStatus.BAD_REQUEST,
+        "Validation failed",
+        request,
+        List.of(new FieldErrorDetail(ex.getField(), ex.getMessage())));
+  }
+
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ApiError> handleNotFound(
       ResourceNotFoundException ex, HttpServletRequest request) {

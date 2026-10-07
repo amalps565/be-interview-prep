@@ -11,7 +11,10 @@ public record TaskRequest(
         String title,
     @Size(max = 2000, message = "must be at most 2000 characters") String description,
     TaskStatus status,
-    @FutureOrPresent(message = "cannot be in the past") LocalDate dueDate) {
+    @FutureOrPresent(groups = OnCreate.class, message = TaskRequest.PAST_DUE_DATE)
+        LocalDate dueDate) {
+
+  public static final String PAST_DUE_DATE = "cannot be in the past";
 
   public TaskStatus statusOrDefault() {
     return status != null ? status : TaskStatus.TODO;

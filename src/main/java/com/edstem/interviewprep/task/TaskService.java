@@ -1,9 +1,13 @@
 package com.edstem.interviewprep.task;
 
+import com.edstem.interviewprep.common.error.InvalidFieldException;
 import com.edstem.interviewprep.common.error.ResourceNotFoundException;
 import com.edstem.interviewprep.task.dto.TaskRequest;
 import com.edstem.interviewprep.task.dto.TaskResponse;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +17,11 @@ public class TaskService {
   private static final String RESOURCE = "Task";
 
   private final TaskRepository taskRepository;
+  private final Clock clock;
 
-  public TaskService(TaskRepository taskRepository) {
+  public TaskService(TaskRepository taskRepository, Clock clock) {
     this.taskRepository = taskRepository;
+    this.clock = clock;
   }
 
   @Transactional
@@ -46,6 +52,7 @@ public class TaskService {
   @Transactional
   public TaskResponse update(Long id, TaskRequest request) {
     Task task = find(id);
+    rejectNewPastDueDate(task, request.dueDate());
     task.update(
         request.title().strip(),
         request.description(),
@@ -57,6 +64,13 @@ public class TaskService {
   @Transactional
   public void delete(Long id) {
     taskRepository.delete(find(id));
+  }
+
+  private void rejectNewPastDueDate(Task task, LocalDate dueDate) {
+    boolean changed = !Objects.equals(task.getDueDate(), dueDate);
+    if (changed && dueDate != null && dueDate.isBefore(LocalDate.now(clock))) {
+      throw new InvalidFieldException("dueDate", TaskRequest.PAST_DUE_DATE);
+    }
   }
 
   private Task find(Long id) {
