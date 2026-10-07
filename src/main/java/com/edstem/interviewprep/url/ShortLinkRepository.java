@@ -1,6 +1,5 @@
 package com.edstem.interviewprep.url;
 
-import java.time.Instant;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,12 +10,7 @@ public interface ShortLinkRepository extends JpaRepository<ShortLink, Long> {
 
   Optional<ShortLink> findByCode(String code);
 
-  boolean existsByCode(String code);
-
-  Optional<ShortLink> findFirstByOriginalUrlAndExpiresAtIsNullOrderByIdAsc(String originalUrl);
-
-  Optional<ShortLink> findFirstByOriginalUrlAndExpiresAtOrderByIdAsc(
-      String originalUrl, Instant expiresAt);
+  Optional<ShortLink> findByDedupKey(String dedupKey);
 
   @Modifying
   @Query("update ShortLink s set s.visitCount = s.visitCount + 1 where s.id = :id")

@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,20 +32,26 @@ public class ShortLinkService {
     this.clock = clock;
   }
 
-  @Transactional
   public ShortenResult shorten(ShortenRequest request) {
     String url = request.url().strip();
     if (request.customCode() != null) {
       return new ShortenResult(
           createWithCustomCode(request.customCode(), url, request.expiresAt()), true);
     }
-    Optional<ShortLink> existing =
-        request.expiresAt() == null
-            ? repository.findFirstByOriginalUrlAndExpiresAtIsNullOrderByIdAsc(url)
-            : repository.findFirstByOriginalUrlAndExpiresAtOrderByIdAsc(url, request.expiresAt());
-    return existing
-        .map(link -> new ShortenResult(link, false))
-        .orElseGet(() -> new ShortenResult(create(url, request.expiresAt()), true));
+    String dedupKey = DedupKeys.of(url, request.expiresAt());
+    for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      Optional<ShortLink> existing = repository.findByDedupKey(dedupKey);
+      if (existing.isPresent()) {
+        return new ShortenResult(existing.get(), false);
+      }
+      try {
+        ShortLink link = new ShortLink(generator.next(), url, request.expiresAt(), dedupKey);
+        return new ShortenResult(repository.saveAndFlush(link), true);
+      } catch (DataIntegrityViolationException raceOrCollision) {
+        continue;
+      }
+    }
+    throw new IllegalStateException("Could not generate a unique short code");
   }
 
   @Transactional
@@ -63,20 +70,18 @@ public class ShortLinkService {
   }
 
   private ShortLink createWithCustomCode(String code, String url, Instant expiresAt) {
-    if (RESERVED_CODES.contains(code.toLowerCase(Locale.ROOT)) || repository.existsByCode(code)) {
-      throw new ApiException(HttpStatus.CONFLICT, "Short code " + code + " is already taken");
+    if (RESERVED_CODES.contains(code.toLowerCase(Locale.ROOT))) {
+      throw taken(code);
     }
-    return repository.save(new ShortLink(code, url, expiresAt));
+    try {
+      return repository.saveAndFlush(new ShortLink(code, url, expiresAt));
+    } catch (DataIntegrityViolationException alreadyTaken) {
+      throw taken(code);
+    }
   }
 
-  private ShortLink create(String url, Instant expiresAt) {
-    for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      String code = generator.next();
-      if (!repository.existsByCode(code)) {
-        return repository.save(new ShortLink(code, url, expiresAt));
-      }
-    }
-    throw new IllegalStateException("Could not generate a unique short code");
+  private ApiException taken(String code) {
+    return new ApiException(HttpStatus.CONFLICT, "Short code " + code + " is already taken");
   }
 
   private ShortLink find(String code) {
