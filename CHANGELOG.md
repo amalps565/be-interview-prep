@@ -18,14 +18,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and each filter is added only when it is present, so any combination works in one request. The
   response carries the page, its size, `totalElements` and `totalPages`. Sorting works on any
   product field; an unknown field or a `minPrice` above `maxPrice` returns 400 as a field error
-  instead of a 500. [#5](https://github.com/amalps565/be-interview-prep/issues/5)
+  instead of a 500. Every sort ends with the product id as a tiebreaker, so paging through products
+  that share a price or category never repeats or skips one.
+  [#5](https://github.com/amalps565/be-interview-prep/issues/5)
 - **Catalog: A page never holds more than 100 products.** A larger `size` is clamped to 100 rather
   than rejected, so a client asking for everything still gets a fast, bounded response.
   [#5](https://github.com/amalps565/be-interview-prep/issues/5)
 - **Catalog: Repeated lookups of one product no longer hit the database.** `GET /api/products/{id}`
   is served from an in-memory Caffeine cache after the first read. An update replaces the cached
   entry and a delete removes it, both only after the database commit, so a reader never sees a
-  price or product that has changed or gone. A test spies on the repository to prove the second
+  price or product that has changed or gone. A cache miss loads the product under a per-key lock,
+  so a read that started before an update cannot store the old details after it. A test spies on the repository to prove the second
   lookup skips it. [#5](https://github.com/amalps565/be-interview-prep/issues/5)
 - **Catalog: Only an admin can add, change or remove products.** `POST`, `PUT` and `DELETE` on
   `/api/products` need the `ADMIN` role and validate every field; a logged-in `USER` can browse but
