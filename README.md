@@ -5,7 +5,7 @@ Five Spring Boot features built for the backend interview prep assignment. Each 
 ## Stack
 
 - Java 21
-- Spring Boot 3.5 (Web, Validation, Data JPA, Security with OAuth2 resource server for JWT), springdoc-openapi for Swagger UI
+- Spring Boot 3.5 (Web, Validation, Data JPA, Security with OAuth2 resource server for JWT, Cache with Caffeine), springdoc-openapi for Swagger UI
 - H2 in-memory database
 - Maven (wrapper included), JUnit 5, Spotless with google-java-format
 
@@ -93,6 +93,41 @@ curl -i localhost:8080/<code>
 curl localhost:8080/api/urls/<code>/stats
 ```
 
+### Products (Q4)
+
+100 products are seeded on startup. Any logged-in user can read the catalog; creating, updating and deleting need the `ADMIN` role (a `USER` gets 403).
+
+| Method | Path | Who | Result |
+|---|---|---|---|
+| `GET` | `/api/products` | any logged-in user | 200 with a page of products, `totalElements` and `totalPages` |
+| `GET` | `/api/products/{id}` | any logged-in user | 200, or 404 for an unknown product |
+| `POST` | `/api/products` | `ADMIN` only | 201 with the product and a `Location` header; 400 with field errors |
+| `PUT` | `/api/products/{id}` | `ADMIN` only | 200 with the updated product |
+| `DELETE` | `/api/products/{id}` | `ADMIN` only | 204 |
+
+Every list parameter is optional and they combine freely in one request:
+
+| Parameter | Meaning |
+|---|---|
+| `category` | exact category, ignoring case |
+| `minPrice`, `maxPrice` | inclusive price range; `minPrice` above `maxPrice` returns 400 |
+| `inStock=true` | only products with stock above 0 |
+| `name` | part of the name, ignoring case |
+| `page`, `size` | zero-based page and page size; default size 20 |
+| `sort` | `field,asc` or `field,desc` on `id`, `name`, `category`, `price`, `stock`, `rating` or `createdAt`; default `id,asc`; any other field returns 400 |
+
+The page size is capped at 100 by `spring.data.web.pageable.max-page-size=100`: a larger `size` is silently clamped to 100, and the response's `size` shows the value used.
+
+```bash
+curl -H "Authorization: Bearer $TOKEN"   "localhost:8080/api/products?category=books&minPrice=10&maxPrice=200&inStock=true&name=lamp&sort=price,desc&size=10"
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/api/products/1
+```
+
+Single-product lookups are cached in memory (Caffeine, up to 10,000 entries, 10-minute expiry). An update replaces the cached entry and a delete removes it, and both happen only after the database transaction commits, so a lookup never returns stale data. How we know repeated lookups skip the database:
+
+- `ProductCacheTest` wraps the repository in a Mockito spy, requests the same product twice and verifies `findById` ran once. It also checks that the next lookup after an update returns the new price and the next lookup after a delete returns 404.
+- Run the app with `./mvnw spring-boot:run -Dspring-boot.run.arguments=--spring.jpa.show-sql=true` and request `/api/products/1` repeatedly: the log shows one `select` for the first request and none after.
+
 ## Questions
 
 | # | Question | PR link |
@@ -100,7 +135,7 @@ curl localhost:8080/api/urls/<code>/stats
 | 1 | Task Manager API | [#7](https://github.com/amalps565/be-interview-prep/pull/7) |
 | 2 | URL Shortener | [#8](https://github.com/amalps565/be-interview-prep/pull/8) |
 | 3 | Authentication & Roles | [#10](https://github.com/amalps565/be-interview-prep/pull/10) |
-| 4 | Product Catalog | |
+| 4 | Product Catalog | [#11](https://github.com/amalps565/be-interview-prep/pull/11) |
 | 5 | Order Service | |
 
 **Video:**
